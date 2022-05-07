@@ -130,7 +130,7 @@ export default function Navigation() {
 	// @ts-expect-error
 	const parsed: mi = menuItems;
 	const insert: JSX.Element[] = [];
-	["documentation", "setup", "plugins"].forEach((k: string) => {
+	["documentation", "setup", "usage", "plugins"].forEach((k: string) => {
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (parsed[k] === undefined) {
 			return;

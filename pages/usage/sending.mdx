@@ -1,0 +1,87 @@
+# Sending
+
+[priority]: 2
+
+## HTTP
+
+Discord++ bots make HTTP REST calls by way of the `Call` series of objects, which abstract away the intricacies of the
+intricacies of the underlying libraries from the bot's developer. If you're using [Native](../plugins/native) The
+base `Call` object takes 6 different arguments,
+enumerated here:
+
+### `Call`
+
+| Argument  | Type                            | Required | Description                                                                                                                                                                                                                                                                |
+|-----------|---------------------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `method`  | `std::string`                   | ✔        | The kind of HTTP operation that the call will be: One of either `"GET"` (for getting something), `"POST"` (for creating something), `"PATCH"` (for modifying something), or `"DELETE"`. (for deleting something)                                                           |
+| `target`  | `std::string`                   | ✔        | The API URL that the call will use. `"https://discord.com/api/v#/"` is appended for you, you just need the direct API path such as `"/users/@me"`   .                                                                                                                      |
+| `type`    | `std::string`                   | ❌        | The MIME type of the body, very likely either `"application/json"` for JSON payloads or `"multipart/form-data"` for file calls. `multipart/form-data` calls also needs a `boundary` used to separate the parts of the body. (`FileCall` below handles this automatically.) |
+| `body`    | `std::string`                   | ❌        | The data payload you're sending to Discord, formatted as a string.                                                                                                                                                                                                         |
+| `onWrite` | `void (const bool)`             | ❌        | The function called after Discord++ sends the `Call` to Discord, primarily for use in ratelimiting- you likely won't need this. If there was an error the `const bool` argument will be `true`.                                                                            |
+| `onRead`  | `void (const bool, const json)` | ❌        | The function called with the response Discord has for the `Call`, formatted as an NLohmann JSON object. If there was an error the `const bool` argument will be `true`.                                                                                                    |
+
+In addition, the base library has two `Call` abstractions: `JsonCall` and `FileCall`. `JsonCall` is set up to easily
+take and NLohmann JSON object as a payload and `FileCall` allows you to send both a file and an NLohmann JSON object.
+
+### `JsonCall`
+
+| Argument  | Type                            | Required | Description                        |
+|-----------|---------------------------------|----------|------------------------------------|
+| `method`  | `std::string`                   | ✔        | As in `Call`                       |
+| `target`  | `std::string`                   | ✔        | As in `Call`                       |
+| `type`    | `std::string`                   | 🗑️      | Always `"application/json"`        |
+| `body`    | `std::string`                   | 🗑️      | Rendered based on `payload`        |
+| `payload` | `nlohmann::json`                | ✔        | The JSON object to send to Discord |
+| `onWrite` | `void (const bool)`             | ❌        | As in `Call`                       |
+| `onRead`  | `void (const bool, const json)` | ❌        | As in `Call`                       |
+
+### `FileCall`
+
+| Argument   | Type                            | Required | Description                                                                                                                                                                                                                                         |
+|------------|---------------------------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `method`   | `std::string`                   | ✔        | As in `Call`                                                                                                                                                                                                                                        |
+| `target`   | `std::string`                   | ✔        | As in `Call`                                                                                                                                                                                                                                        |
+| `type`     | `std::string`                   | 🗑️      | Always `"multipart/formdata; boundary={generated boundary}"`                                                                                                                                                                                        |
+| `body`     | `std::string`                   | 🗑️      | Rendered based on `filename`, `filetype`, `file`, and `payload`                                                                                                                                                                                     |
+| `filename` | `std::string`                   | ❌        | The name of the file, e.g. `"image.jpg"`.                                                                                                                                                                                                           |
+| `filetype` | `std::string`                   | ❌        | The MIME type of the file, e.g. `"image/jpg"`. [There's a list of common MIME types in Mozilla's MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)                                            |
+| `file`     | `std::string`                   | ❌        | The file encoded as a string, see below for an example of how to create this. There may be a utility function in the future to automate this process. *Note: The file string could be quite large, take care to not make copies of it if possible.* |
+| `payload`  | `nlohmann::json`                | ❌        | The JSON object to send to Discord                                                                                                                                                                                                                  |
+| `onWrite`  | `void (const bool)`             | ❌        | As in `Call`                                                                                                                                                                                                                                        |
+| `onRead`   | `void (const bool, const json)` | ❌        | As in `Call`                                                                                                                                                                                                                                        |
+
+*Note: this example uses a `CreateMessageCall`, a child class of `FileCall` in the [Native](../plugins/native) plugin. It hides the `nlohmann::json payload` and renders it using some other fields- here it uses `std::string content`*
+```cpp
+# Open the file
+std::ifstream ifs("image.jpg", std::ios::binary);
+if (!ifs) {
+    std::cerr << "Couldn't load file 'image.jpg'!\n";
+    return;
+}
+# Seek to the end of the file and get the pointer position to determine the size of the file
+ifs.seekg(0, std::ios::end);
+std::ifstream::pos_type fileSize = ifs.tellg();
+# Seek back to the beginning of the file
+ifs.seekg(0, std::ios::beg);
+# Create an appropriately-sized string
+auto file = std::make_shared<std::string>(fileSize, '\0');
+# Read the file into the string
+ifs.read(file->data(), fileSize);
+
+# Send the message
+bot->createMessage()
+   ->channel_id(*msg.channel_id)
+   ->content("Look at this photograph")
+   ->filename("image.jpg")
+   ->filetype("image/jpg")
+   ->file(file)
+   ->run();
+```
+
+## WebSocket
+
+🚧Coming soon, pardon our dust🚧
+
+## Webhook
+
+Discord++ currently doesn't support webhooks, sorry. We're open to PRs, though!
