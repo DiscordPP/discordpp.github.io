@@ -5,7 +5,7 @@
 ## HTTP
 
 Discord++ bots make HTTP REST calls by way of the `Call` series of objects, which abstract away the intricacies of the
-intricacies of the underlying libraries from the bot's developer. If you're using [Native](../plugins/native) The
+intricacies of the underlying libraries from the bot's developer. If you're using [Native](/plugins/native) The
 base `Call` object takes 6 different arguments,
 enumerated here:
 
@@ -50,7 +50,7 @@ take and NLohmann JSON object as a payload and `FileCall` allows you to send bot
 | `onWrite`  | `void (const bool)`             | ❌        | As in `Call`                                                                                                                                                                                                                                        |
 | `onRead`   | `void (const bool, const json)` | ❌        | As in `Call`                                                                                                                                                                                                                                        |
 
-*Note: this example uses a `CreateMessageCall`, a child class of `FileCall` in the [Native](../plugins/native) plugin. It hides the `nlohmann::json payload` and renders it using some other fields- here it uses `std::string content`*
+*Note: this example uses a `CreateMessageCall`, a child class of `FileCall` in the [Native](/plugins/native) plugin. It hides the `nlohmann::json payload` and renders it using some other fields- here it uses `std::string content`*
 ```cpp
 # Open the file
 std::ifstream ifs("image.jpg", std::ios::binary);
