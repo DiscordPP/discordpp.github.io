@@ -80,7 +80,19 @@ bot->createMessage()
 
 ## WebSocket
 
-🚧Coming soon, pardon our dust🚧
+WebSocket commands are sent by way of `Bot::send(const int opcode, std::shared_ptr<const json> payload, std::shared_ptr<const std::function<void()>> callback)`. If you don't want to deal in `std::shared_ptr`s the [Overload](/plugins/overload) plugin will create them for you. (It may be rolled into the main library in the future, it used to handle calls before the `Call` class and its children were created.) [You can find a list of the gateway commands in the official Discord API docs.](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-commands) Here's an example [Update Presence](https://discord.com/developers/docs/topics/gateway#update-presence) command from Echo:
+
+```cpp
+bot->send(3, {
+    {"game", {
+        {"name", "with " + name},
+        {"type", 0}
+    }},
+    {"status", "online"},
+    {"afk", false},
+    {"since", "null"}
+});
+```
 
 ## Webhook
 
