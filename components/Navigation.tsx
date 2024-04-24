@@ -186,7 +186,7 @@ export default function Navigation() {
 				<NavigationLink href="https://theundarkpixel.com/" className="text-lg">
 					Back to The Undark Pixel
 				</NavigationLink>
-				<NavigationLink href="https://discord.gg/VHAyrvspCx" className="text-lg">
+				<NavigationLink href="https://discord.gg/4stCdkDHw6" className="text-lg">
 					Join our Discord!
 				</NavigationLink>
 				<NavigationLink href="https://github.com/DiscordPP" className="text-lg">
